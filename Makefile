@@ -4,6 +4,8 @@ CFLAGS = /Iinclude /W4 /c
 
 OBJ = build\main.obj build\commands.obj build\path.obj
 
+LDFLAGS = shlwapi.lib
+
 TARGET = build\passw.exe
 
 
@@ -14,7 +16,7 @@ build:
 
 
 $(TARGET): $(OBJ)
-	$(CC) $(OBJ) /Fe$(TARGET)
+	$(CC) $(OBJ) /Fe$(TARGET) $(LDFLAGS)
 
 
 build\main.obj: src\main.c include\commands.h include\path.h

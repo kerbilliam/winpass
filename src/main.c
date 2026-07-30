@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <windows.h>
 
 #include <wchar.h>
@@ -48,7 +49,7 @@ int wmain(int argc, wchar_t *argv[])
             	return 1;
 	}
 
-        return cmd_show(argv[2]);
+        return cmd_show(store_path, sizeof(store_path), argv[2]);
     }
 
     if (wcscmp(argv[1], L"rm") == 0) {

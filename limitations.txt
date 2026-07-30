@@ -1,0 +1,1 @@
+use of MAX_PATH removes support for LongPaths in Windows
