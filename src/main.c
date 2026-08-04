@@ -14,13 +14,15 @@ static int usage(void)
 
 int wmain(int argc, wchar_t *argv[])
 {
-    char store_path[MAX_PATH];
+    wchar_t store_path[MAX_PATH];
     bool ok;
     ok = get_store_path(store_path, MAX_PATH);
     if (ok) {
-	    puts(store_path);
-    } else
-	    puts("ERROR: Store path could not be resolved.");
+	    _putws(store_path);
+    } else {
+	    puts("Error: password store is empty. Try \"pass init\".");
+	    return 1;
+    }
 
     if (argc < 2)
         return usage();

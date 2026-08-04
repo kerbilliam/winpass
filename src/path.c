@@ -3,37 +3,39 @@
 #include <stdbool.h>
 #include <string.h>
 
-static bool ensure_trailing_backslash(char *buffer, size_t size)
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+
+static bool ensure_trailing_backslash(wchar_t *buffer, size_t size)
 {
-	size_t len = strlen(buffer);
+	size_t len = wcslen(buffer);
 
 	if (len == 0)
 		return false;
 
-	if (buffer[len - 1] == '\\')
+	if (buffer[len - 1] == L'\\')
 		return true;
 
-	if (buffer[len - 1] == '/')
-		buffer[len - 1] = '\\';
-	else if (FAILED(StringCchCatA(buffer, size, "\\")))
+	if (buffer[len - 1] == L'/')
+		buffer[len - 1] = L'\\';
+	else if (FAILED(StringCchCatW(buffer, size, L"\\")))
 		return false;
 
 	return true;
 }
 
-static bool normalize_entry_path(char *dest, size_t dest_size, const char *entry)
+static bool normalize_entry_path(wchar_t *dest, size_t dest_size, const wchar_t *entry)
 {
 	size_t i = 0;
 	size_t j = 0;
 
-	while (entry[i] == '/' || entry[i] == '\\')
+	while (entry[i] == L'/' || entry[i] == L'\\')
 		i++;
 
-	while (entry[i] != '\0') {
-		char c = entry[i++];
+	while (entry[i] != L'\0') {
+		wchar_t c = entry[i++];
 
-		if (c == '/')
-			c = '\\';
+		if (c == L'/')
+			c = L'\\';
 
 		if (j + 1 >= dest_size)
 			return false;
@@ -41,19 +43,19 @@ static bool normalize_entry_path(char *dest, size_t dest_size, const char *entry
 		dest[j++] = c;
 	}
 
-	dest[j] = '\0';
+	dest[j] = L'\0';
 	return j > 0;
 }
 
-bool get_store_path(char *buffer, size_t size)
+bool get_store_path(wchar_t *buffer, size_t size)
 {
-	const char *default_name = "\\.password-store";
+	const wchar_t *default_name = L"\\.password-store";
 
 	DWORD written;
 	DWORD buffer_size = (DWORD)size;
 
-	written = GetEnvironmentVariable(
-			"PASSWORD_STORE_DIR",
+	written = GetEnvironmentVariableW(
+			L"PASSWORD_STORE_DIR",
 			buffer,
 			buffer_size
 			);
@@ -65,8 +67,8 @@ bool get_store_path(char *buffer, size_t size)
 		return true;
 
 	// fallback
-	written = GetEnvironmentVariable(
-			"USERPROFILE",
+	written = GetEnvironmentVariableW(
+			L"USERPROFILE",
 			buffer,
 			buffer_size
 			);
@@ -77,7 +79,7 @@ bool get_store_path(char *buffer, size_t size)
 	// concat .password_store
 	HRESULT result;
 
-	result = StringCchCatA(
+	result = StringCchCatW(
 			buffer,
 			buffer_size,
 			default_name
@@ -88,24 +90,24 @@ bool get_store_path(char *buffer, size_t size)
 }
 
 bool append_entry(
-	char *buffer, // buffer contianing store path
+	wchar_t *buffer, // buffer contianing store path
 	size_t size, // size of buffer containing store path
-	const char *entry
+	const wchar_t *entry
 	)
 {
-	char normalized[MAX_PATH];
+	wchar_t normalized[MAX_PATH];
 	HRESULT result;
 
 	if (!ensure_trailing_backslash(buffer, size))
 		return false;
 
-	if (!normalize_entry_path(normalized, sizeof(normalized), entry))
+	if (!normalize_entry_path(normalized, ARRAY_SIZE(normalized), entry))
 		return false;
 
-	result = StringCchCatA(buffer, size, normalized);
+	result = StringCchCatW(buffer, size, normalized);
 	if (!SUCCEEDED(result))
 		return false;
 
-	result = StringCchCatA(buffer, size, ".gpg");
+	result = StringCchCatW(buffer, size, L".gpg");
 	return SUCCEEDED(result);
 }
