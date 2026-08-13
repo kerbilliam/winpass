@@ -1,4 +1,4 @@
 build/*
-passw.exe
+*.exe
 *.ilk
 *.pdb

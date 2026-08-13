@@ -6,7 +6,7 @@ OBJ = build\main.obj build\commands.obj build\path.obj build\tree.obj
 
 LDFLAGS = /DEBUG shlwapi.lib
 
-TARGET = passw.exe
+TARGET = winpass.exe
 
 
 all: build $(TARGET)
