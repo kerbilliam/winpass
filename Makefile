@@ -1,6 +1,6 @@
 CC = cl
 
-CFLAGS = /Iinclude /W4 /c
+CFLAGS = /nologo /Iinclude /W4 /c
 
 OBJ = build\main.obj build\commands.obj build\path.obj
 
