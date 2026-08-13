@@ -1,22 +1,25 @@
 CC = cl
 
-CFLAGS = /nologo /Iinclude /W4 /c
+CFLAGS = /nologo /utf-8 /Iinclude /Zi /c
 
-OBJ = build\main.obj build\commands.obj build\path.obj
+OBJ = build\main.obj build\commands.obj build\path.obj build\tree.obj
 
-LDFLAGS = shlwapi.lib
+LDFLAGS = /DEBUG shlwapi.lib
 
-TARGET = build\passw.exe
+TARGET = passw.exe
 
 
 all: build $(TARGET)
 
 build:
 	if not exist build mkdir build
+	
+run: all
+	$(TARGET)
 
 
 $(TARGET): $(OBJ)
-	$(CC) $(OBJ) /Fe$(TARGET) $(LDFLAGS)
+	$(CC) $(OBJ) /Fe$(TARGET) /link $(LDFLAGS)
 
 
 build\main.obj: src\main.c include\commands.h include\path.h
@@ -28,6 +31,8 @@ build\commands.obj: src\commands.c include\commands.h
 build\path.obj: src\path.c include\path.h
 	$(CC) $(CFLAGS) /Fobuild\ src\path.c
 
+build\tree.obj: src\tree.c include\tree.h
+	$(CC) $(CFLAGS) /Fobuild\ src\tree.c
 
 clean:
-	del /Q build\*.obj build\*.exe
+	del /Q build\*.obj passw.exe *.ilk *.pdb

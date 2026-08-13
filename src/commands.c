@@ -3,22 +3,23 @@
 #include <shlwapi.h>
 #include "commands.h"
 #include "path.h"
+#include "tree.h"
 
 int cmd_help(void)
 {
-	puts("Available commands:");
-	puts("  init");
-    	puts("  insert <name>");
-    	puts("  show <name>");
-    	puts("  list");
-    	puts("  rm <name>");
+	_putws(L"Available commands:");
+	_putws(L"  init");
+    	_putws(L"  insert <name>");
+    	_putws(L"  show <name>");
+    	_putws(L"  list");
+    	_putws(L"  rm <name>");
 
     	return 0;
 }
 
 int cmd_init(void)
 {
-    	puts("init");
+    	_putws(L"init");
     	return 0;
 }
 
@@ -35,7 +36,7 @@ int cmd_show(wchar_t *buffer, size_t size, const wchar_t *entry)
 	ok = append_entry(buffer, size, entry);
 
 	if (!ok) {
-		puts("ERROR: Can't append entry to store path.");
+		_putws(L"ERROR: Can't append entry to store path.");
 		return 1;
 	}
 
@@ -48,9 +49,11 @@ int cmd_show(wchar_t *buffer, size_t size, const wchar_t *entry)
 	return 1;
 }
 
-int cmd_list(void)
+int cmd_list(wchar_t *path)
 {
-    	puts("list");
+		int err = tree(path);
+		if (err)
+			return 1;
     	return 0;
 }
 

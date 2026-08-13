@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <windows.h>
+#include <io.h>
+#include <fcntl.h>
 
 #include <wchar.h>
 #include <wctype.h>
@@ -14,13 +16,15 @@ static int usage(void)
 
 int wmain(int argc, wchar_t *argv[])
 {
+    _setmode(_fileno(stdout), _O_U16TEXT);
+
     wchar_t store_path[MAX_PATH];
     bool ok;
     ok = get_store_path(store_path, MAX_PATH);
     if (ok) {
 	    _putws(store_path);
     } else {
-	    puts("Error: password store is empty. Try \"pass init\".");
+	    _putws(L"Error: password store is empty. Try \"pass init\".");
 	    return 1;
     }
 
@@ -34,11 +38,11 @@ int wmain(int argc, wchar_t *argv[])
         return cmd_init();
 
     if (wcscmp(argv[1], L"list") == 0)
-        return cmd_list();
+        return cmd_list(store_path);
 
     if (wcscmp(argv[1], L"insert") == 0) {
         if (argc < 3) {
-		puts("ERROR: Need a password name!");
+		_putws(L"ERROR: Need a password name!");
             	return 1;
 	}
 
@@ -47,7 +51,7 @@ int wmain(int argc, wchar_t *argv[])
 
     if (wcscmp(argv[1], L"show") == 0) {
         if (argc < 3) {
-		puts("ERROR: Need a password name!");
+		_putws(L"ERROR: Need a password name!");
             	return 1;
 	}
 
@@ -56,7 +60,7 @@ int wmain(int argc, wchar_t *argv[])
 
     if (wcscmp(argv[1], L"rm") == 0) {
         if (argc < 3) {
-		puts("ERROR: Need a password name!");
+		_putws(L"ERROR: Need a password name!");
             	return 1;
 	}
         return cmd_remove(argv[2]);

@@ -4,12 +4,43 @@
 
 // print dirs in bright blue using ANSI Escape Sequence
 #define PRINT_DIR(y) wprintf(L"\x1b[94m%ls\x1b[0m\n", (y))
+#define PRINT_ENTRY(y) wprintf(L"%ls\n", (y))
+#define PRINT_BRANCH wprintf(L"├─")
+#define PRINT_END_BRANCH wprintf(L"└─")
 
-static int walk(wchar_t *path, int depth);
-
-int tree(wchar_t *path)
+static void spacer(int count)
 {
-	return walk(path, 0);
+	while (count > 0) {
+		wprintf(L"    ");
+		count--;
+	}
+}
+
+static int build_new_dir(wchar_t *buffer, const wchar_t *basedir, const wchar_t *dir)
+{
+	HRESULT ok;
+	ok = StringCchCopyW(buffer, MAX_PATH, basedir);
+	
+	if (FAILED(ok)) {
+		_putws(L"ERROR: cannot copy basedir to buffer for new path.");
+		return 1;
+	}
+
+	StringCchCatW(buffer, MAX_PATH, L"\\");
+
+	if (FAILED(ok)) {
+		_putws(L"ERROR: cannot cat dir to buffer for new path.");
+		return 1;
+	}
+
+	StringCchCatW(buffer, MAX_PATH, dir);
+	
+	if (FAILED(ok)) {
+		_putws(L"ERROR: cannot cat dir to buffer for new path.");
+		return 1;
+	}
+	
+	return 0;
 }
 
 static int walk(wchar_t *path, int depth)
@@ -31,10 +62,25 @@ static int walk(wchar_t *path, int depth)
 	// list loop
 
 	do {
+
 		if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+			if (ffd.cFileName[0] == L'.') {
+				continue;
+			}
+			spacer(depth);
+			PRINT_BRANCH;
 			PRINT_DIR(ffd.cFileName);
+			
+			// build new dirpath and recurse
+			wchar_t newdir[MAX_PATH];
+			build_new_dir(newdir, path, ffd.cFileName);
+				
+			walk(newdir, depth + 1);
+
 		} else {
-			wprintf(L"%ls\n", ffd.cFileName);
+			spacer(depth);
+			PRINT_END_BRANCH;
+			PRINT_ENTRY(ffd.cFileName);
 		}
 	} while (FindNextFileW(hFind, &ffd) != 0);
 
@@ -46,4 +92,9 @@ static int walk(wchar_t *path, int depth)
 
 	FindClose(hFind);
 	return 0;
+}
+
+int tree(wchar_t *path)
+{
+	return walk(path, 0);
 }
