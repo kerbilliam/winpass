@@ -35,4 +35,4 @@ build\tree.obj: src\tree.c include\tree.h
 	$(CC) $(CFLAGS) /Fobuild\ src\tree.c
 
 clean:
-	del /Q build\*.obj passw.exe *.ilk *.pdb
+	del /Q build\*.obj $(TARGET) *.ilk *.pdb
