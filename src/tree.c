@@ -10,9 +10,8 @@
 
 static void spacer(int count)
 {
-	while (count > 0) {
+	while (count-- > 0) {
 		wprintf(L"    ");
-		count--;
 	}
 }
 
@@ -46,13 +45,14 @@ static int build_new_dir(wchar_t *buffer, const wchar_t *basedir, const wchar_t 
 static int walk(wchar_t *path, int depth)
 {
 	WIN32_FIND_DATAW ffd;
+	WIN32_FIND_DATAW next_ffd;
 	HANDLE hFind = INVALID_HANDLE_VALUE;
-	wchar_t szDir[MAX_PATH];
+	wchar_t working_path[MAX_PATH];
 
-	StringCchCopyW(szDir, MAX_PATH, path);
-	StringCchCatW(szDir, MAX_PATH, L"\\*");
+	StringCchCopyW(working_path, MAX_PATH, path);
+	StringCchCatW(working_path, MAX_PATH, L"\\*");
 
-	hFind = FindFirstFileW(szDir, &ffd);
+	hFind = FindFirstFileW(working_path, &ffd);
 
 	if (INVALID_HANDLE_VALUE == hFind) {
 		_putws(L"ERROR: FindFirstFile - INVALID_HANDLE_VALUE.");
@@ -60,34 +60,39 @@ static int walk(wchar_t *path, int depth)
 	}
 
 	// list loop
+	BOOL current = TRUE;
+	
+	while (current) {
+		BOOL next_exists = FindNextFileW(hFind, &next_ffd);
 
-	do {
+		if(ffd.cFileName[0] == L'.') {
+			if (!next_exists)
+				break;
 
-		if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-			if (ffd.cFileName[0] == L'.') {
-				continue;
-			}
-			spacer(depth);
+			ffd = next_ffd;
+			continue;
+		}
+		
+		spacer(depth);
+
+		if (next_exists) {
 			PRINT_BRANCH;
+		} else {
+			PRINT_END_BRANCH;
+		}
+		
+		if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 			PRINT_DIR(ffd.cFileName);
 			
-			// build new dirpath and recurse
 			wchar_t newdir[MAX_PATH];
 			build_new_dir(newdir, path, ffd.cFileName);
-				
 			walk(newdir, depth + 1);
-
 		} else {
-			spacer(depth);
-			PRINT_END_BRANCH;
 			PRINT_ENTRY(ffd.cFileName);
 		}
-	} while (FindNextFileW(hFind, &ffd) != 0);
-
-	DWORD dwError = 0;
-	dwError = GetLastError();
-	if (dwError != ERROR_NO_MORE_FILES) {
-		_putws(L"ERROR: NO MORE FILES");
+		
+		ffd = next_ffd;
+		current = next_exists;
 	}
 
 	FindClose(hFind);
