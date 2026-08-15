@@ -5,13 +5,16 @@
 // print dirs in bright blue using ANSI Escape Sequence
 #define PRINT_DIR(y) wprintf(L"\x1b[94m%ls\x1b[0m\n", (y))
 #define PRINT_ENTRY(y) wprintf(L"%ls\n", (y))
-#define PRINT_BRANCH wprintf(L"├─")
-#define PRINT_END_BRANCH wprintf(L"└─")
+#define PRINT_BRANCH wprintf(L"├──")
+#define PRINT_END_BRANCH wprintf(L"└──")
 
 static void spacer(int count)
 {
+	if (count > 0)
+		wprintf(L"│");
+
 	while (count-- > 0) {
-		wprintf(L"    ");
+		wprintf(L"   ");
 	}
 }
 
