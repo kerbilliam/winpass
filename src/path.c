@@ -111,3 +111,13 @@ bool append_entry(
 	result = StringCchCatW(buffer, size, L".gpg");
 	return SUCCEEDED(result);
 }
+
+void trim_extension(wchar_t *filepath)
+{
+	for (int i = wcslen(filepath) - 1; i >= 0; i--) {
+		if (filepath[i] == '.') {
+			filepath[i] = '\0';
+			return;
+		}
+	}
+}

@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include <strsafe.h>
+#include <path.h>
 
 // print dirs in bright blue using ANSI Escape Sequence
 #define PRINT_DIR(y) wprintf(L"\x1b[94m%ls\x1b[0m\n", (y))
@@ -91,6 +92,7 @@ static int walk(wchar_t *path, int depth)
 			build_new_dir(newdir, path, ffd.cFileName);
 			walk(newdir, depth + 1);
 		} else {
+			trim_extension(ffd.cFileName);
 			PRINT_ENTRY(ffd.cFileName);
 		}
 		

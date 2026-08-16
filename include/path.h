@@ -6,5 +6,6 @@
 
 bool get_store_path(wchar_t *buffer, size_t size);
 bool append_entry(wchar_t *buffer, size_t size, const wchar_t *entry);
+void trim_extension(wchar_t *filepath);
 
 #endif
